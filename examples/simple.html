@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+	<script src="../js/AudioVisJS.js"></script>
+
+	<script type="text/javascript">
+		
+		function init()
+		{
+			audioVis.init("visualizer", "fantasytheme.mp3");
+		}
+	
+	</script>
+
+</head>
+
+<body onload="init();">
+
+
+	<h1>Simple Audio Visualization Example</h1>
+
+	<div id="test"></div>
+	
+	<canvas id="visualizer"></canvas> <br />
+	
+	<input type='button' value='Play' onclick='audioVis.play();' /> <br />
+	<input type='button' value='Stop' onclick='audioVis.stop();' /> <br />
+	<input type='button' value='Pause' onclick='audioVis.pause();' /> <br />
+	<input type='button' value='To Start' onclick='audioVis.toStart();' /> <br />
+	<input type='button' value='To End' onclick='audioVis.toEnd();' /> <br />
+	<input type='button' value='Rewind' onclick='audioVis.rewind();' /> <br />
+	<input type='button' value='Fast-Forward' onclick='audioVis.fastforward();' /> <br />
+
+</body>
+
+</html>

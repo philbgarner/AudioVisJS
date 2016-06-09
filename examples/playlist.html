@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+	<script src="../js/AudioVisJS.js"></script>
+
+	<script type="text/javascript">
+		
+		var tracks = [
+		];
+		var currentTrack = 0;
+		
+		function changeTrack(name)
+		{	
+			var current = document.querySelector("ol.playlist > li.selected");
+			if (current.innerText != name)
+			{
+				current.classList.remove("selected")
+			}
+			else
+			{
+				return;	
+			}
+
+			for (var i = 0; i < tracks.length; i++)
+			{
+				if (name == tracks[i].name)
+				{
+					audioVis.setURL(tracks[i].url);
+					currentTrack = i;
+					document.querySelectorAll("ol.playlist > li")[currentTrack].classList.add("selected");
+					return;
+				}
+			}
+		}
+		function addTrack(name, url)
+		{
+			tracks.push({"name": name, "url": url});
+		}
+		
+		var playlist;
+		
+		function init()
+		{
+		
+			addTrack("Fantasy Theme", "fantasytheme.mp3");
+			addTrack("Horror Loop", "horror_loop.mp3");
+		
+			for (var i = 0; i < tracks.length; i++)
+			{
+				var el = document.querySelector("ol.playlist").appendChild(document.createElement("li"));
+				if (i == 0)
+				{
+					el.classList.add("selected");
+				}
+				el.innerText = tracks[i].name;
+			}
+
+			playlist = document.querySelector("ol.playlist");
+			
+			playlist.addEventListener("click", function(d) {
+				document.querySelector("ol.playlist > li.selected").classList.remove("selected");
+				d.target.classList.add("selected");
+				
+				changeTrack(d.target.innerText);
+			});
+			
+
+			// audioVisJS Library Setup		
+
+			// We don't need a callback to the render frame,
+			// but we do want one for when the user wants to
+			// advance the track.
+			
+			audioVis.init("visualizer", "fantasytheme.mp3");
+			
+			audioVis.callback_next = function (d)
+			{
+				currentTrack++;
+				if (currentTrack >= tracks.length)
+				{
+					changeTrack(tracks[0].name);
+				}
+			};
+		}
+	
+	</script>
+	
+	<style type="text/css">
+	
+		ol.playlist
+		{
+			background-color: #001b33;
+			width: 200px;
+			
+			padding: 25px;
+		}
+		ol.playlist > li
+		{
+			width: 200px;
+			height: 30px;
+			margin: 5px;
+			padding: 3px;
+			color: #f1f1f1;
+			background-color: #001b33;
+			cursor: pointer;
+		}
+		ol.playlist > li.selected
+		{
+			font-weight: bold;
+		}
+		ol.playlist > li:hover
+		{
+			font-style: italic;
+		}
+		
+	
+	</style>
+
+</head>
+
+<body onload="init();">
+
+
+	<h1>Playlist Audio Visualization Example</h1>
+
+	<div id="test"></div>
+	
+	<canvas id="visualizer"></canvas> <br />
+	
+	<input type='button' value='Play' onclick='audioVis.play();' /> <br />
+	<input type='button' value='Stop' onclick='audioVis.stop();' /> <br />
+	<input type='button' value='Pause' onclick='audioVis.pause();' /> <br />
+	<input type='button' value='To Start' onclick='audioVis.toStart();' /> <br />
+	<input type='button' value='To End' onclick='audioVis.toEnd();' /> <br />
+	<input type='button' value='Rewind' onclick='audioVis.rewind();' /> <br />
+	<input type='button' value='Fast-Forward' onclick='audioVis.fastforward();' /> <br />
+	
+	<ol class="playlist">
+	
+	</ol>
+
+</body>
+
+</html>
