@@ -1,7 +1,12 @@
 var audioVis = {
-};
+};  // Fancy namespace stuff.
 (function()
 {
+
+	
+	// Internal handle for 'this' within the current object's scope.
+	
+	var me = this;
 
 	// Global Attributes
 	
@@ -11,11 +16,17 @@ var audioVis = {
 	this.paused = false;
 	this.stopped = true;
 	
-	this.analyser;
+	me.url;
+	me.ctx;
+	me.audio;
+	me.source;
+	me.audioCtx;
+	me.dataArray;
+	me.bufferLength;
+	me.analyser;
 	
 	// Callbacks
 
-	this.callback;
 	this.callback_play;
 	this.callback_pause;
 	this.callback_stop;
@@ -24,21 +35,6 @@ var audioVis = {
 	this.callback_nextSong;
 	this.callback_prevSong;
 
-	
-	// Internal handle for 'this' within the current object's scope.
-	
-	var me = this;
-	
-	// Private Attributes
-	
-	var url;
-	var ctx;
-	var audio;
-	var source;
-	var audioCtx;
-	var dataArray;
-	var bufferLength;
-	
 	var initialized = false;
 
 	// Visualizer Settings
@@ -58,7 +54,7 @@ var audioVis = {
 	{
 		if (!me.playing)
 		{
-			audio.play();
+			me.audio.play();
 
 			me.playing = true;
 			me.stopped = false;
@@ -74,7 +70,7 @@ var audioVis = {
 	{
 		if (me.playing)
 		{
-			audio.pause();
+			me.audio.pause();
 
 			me.playing = false;
 			me.stopped = false;
@@ -88,7 +84,7 @@ var audioVis = {
 	}
 	this.toStart = function ()
 	{
-		audio.currentTime = 0;
+		me.audio.currentTime = 0;
 	}
 	this.toEnd = function ()
 	{
@@ -97,7 +93,7 @@ var audioVis = {
 		// is called, the toNext() callback won't yet be
 		// called.
 		
-		audio.currentTime = audio.duration - 0.1;
+		me.audio.currentTime = me.audio.duration - 0.1;
 	}
 	this.toNext = function ()
 	{
@@ -115,18 +111,18 @@ var audioVis = {
 	}
 	this.fastforward = function ()
 	{
-		audio.currentTime += me.settings.seek_speed;
+		me.audio.currentTime += me.settings.seek_speed;
 	}
 	this.rewind = function ()
 	{
-		audio.currentTime -= me.settings.seek_speed;
+		me.audio.currentTime -= me.settings.seek_speed;
 	}
 	this.stop = function ()
 	{
 		if (me.playing || me.paused)
 		{
-			audio.pause();
-			audio.currentTime = 0;
+			me.audio.pause();
+			me.audio.currentTime = 0;
 
 			me.playing = false;
 			me.stopped = true;
@@ -143,13 +139,13 @@ var audioVis = {
 	
 	this.getURL = function()
 	{
-		return url;
+		return me.url;
 	}
 	this.setURL = function(audio_url)
 	{
 		initialized = false;
-		url = audio_url;
-		audio.src = url;
+		me.url = audio_url;
+		me.audio.src = me.url;
 	}
 		
 	this.drawVis = function ()
@@ -158,22 +154,22 @@ var audioVis = {
 		{
 			return;
 		}
-		if (!audio.paused || (audio.currentTime == 0 || audio.currentTime == audio.duration))
+		if (!me.audio.paused || (me.audio.currentTime == 0 || me.audio.currentTime == me.audio.duration))
 		{
-			me.analyser.getByteFrequencyData(dataArray);
+			me.analyser.getByteFrequencyData(me.dataArray);
 		}
 	
 		var bgcolor = me.settings.bgcolor;
 	
-		ctx.fillStyle = bgcolor;
-		var g = ctx.globalAlpha;
-		ctx.globalAlpha = me.settings.fadeout_alpha;
-		ctx.fillRect(0, 0, me.settings.width, me.settings.height);
-		ctx.globalAlpha = g;
+		me.ctx.fillStyle = bgcolor;
+		var g = me.ctx.globalAlpha;
+		me.ctx.globalAlpha = me.settings.fadeout_alpha;
+		me.ctx.fillRect(0, 0, me.settings.width, me.settings.height);
+		me.ctx.globalAlpha = g;
 
-		ctx.fillStyle = me.settings.fgcolor;
+		me.ctx.fillStyle = me.settings.fgcolor;
 		var dx = 0;
-		var step = me.settings.width / dataArray.length;
+		var step = me.settings.width / me.dataArray.length;
 		var ratio = me.analyser.fftSize / me.settings.height;
 
 		var ratioY;
@@ -186,10 +182,10 @@ var audioVis = {
 			ratioY = 255 / me.settings.height;
 		}
 	
-		for (var i = 0; i < dataArray.length; i++)
+		for (var i = 0; i < me.dataArray.length; i++)
 		{
-			var offset = parseInt(dataArray[i] * ratioY);
-			ctx.fillRect(dx, (me.settings.height) - offset, step, me.settings.bar_height);
+			var offset = parseInt(me.dataArray[i] * ratioY);
+			me.ctx.fillRect(dx, (me.settings.height) - offset, step, me.settings.bar_height);
 			dx += step;
 		}
 		requestAnimationFrame(me.drawVis);
@@ -200,7 +196,8 @@ var audioVis = {
 		if (!initialized)
 		{
 			this.canvasid = canvasid;
-			url = audio_url;
+			
+			me.url = audio_url;
 
 			this.canvas = document.getElementById(canvasid);
 						
@@ -216,45 +213,47 @@ var audioVis = {
 			{
 				
 			
-				audioCtx = new (window.webkitAudioContext || window.AudioContext)();
-				ctx = this.canvas.getContext("2d");
+				me.audioCtx = new (window.webkitAudioContext || window.AudioContext)();
+				me.ctx = this.canvas.getContext("2d");
 
-				audio = new Audio();
+				me.audio = new Audio();
+				document.body.appendChild(me.audio);
 				
-				this.setURL(url);
+				this.setURL(me.url);
 				
 				this.canvas.width = me.settings.width;
 				this.canvas.style.width = me.settings.width;
 				this.canvas.height = me.settings.height;
 				this.canvas.style.height = me.settings.height;
 
-				audio.addEventListener("canplay", function () {
+				me.audio.addEventListener("canplay", function () {
 					// Ready to play, enable any related audio controls.
-
-					if (!initialized && me.analyser == undefined)
+					if (!initialized)
 					{
-						source = audioCtx.createMediaElementSource(audio); 
-						
-						me.analyser = audioCtx.createAnalyser();
+						me.source = me.audioCtx.createMediaElementSource(me.audio); 
+
+						me.analyser = me.audioCtx.createAnalyser();
 
 						me.analyser.fftSize = me.settings.fftSize;
-						bufferLength = me.analyser.frequencyBinCount;
-						dataArray = new Uint8Array(bufferLength);
-		
-						source.connect(me.analyser);
-						source.connect(audioCtx.destination);
+						me.bufferLength = me.analyser.frequencyBinCount;
+						me.dataArray = new Uint8Array(me.bufferLength);
+
+						me.source.connect(me.analyser);
+						me.source.connect(me.audioCtx.destination);
 						
 						me.drawVis();
+						
+						initialized = true;
 					}
 					if (me.playing)
 					{
 						me.playing = true;
 						me.stopped = false;
 						me.paused = false;
-						audio.play();
+						me.audio.play();
 					}
 				});
-				audio.addEventListener("ended", function () {
+				me.audio.addEventListener("ended", function () {
 					// Song has ended normally, call the toNext() function to trigger
 					// any callbacks that the calling page may have already hooked up.
 					
