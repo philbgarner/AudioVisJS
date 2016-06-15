@@ -12,15 +12,15 @@
 		var currentTrack = 0;
 		
 		function changeTrack(name)
-		{	
+		{
 			var current = document.querySelector("ol.playlist > li.selected");
 			if (current.innerText != name)
 			{
-				current.classList.remove("selected")
+				current.classList.remove("selected");
 			}
 			else
 			{
-				return;	
+
 			}
 
 			for (var i = 0; i < tracks.length; i++)
